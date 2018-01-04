@@ -21,9 +21,9 @@ public class InsertionIntoMariaDB implements Runnable, DBkeys {
 
 	public void setValue(StringBuffer json) {
 
-		synchronized (object) {
+		//synchronized (object) {
 			this.listofJson.add(json);
-		}
+		//}
 	}
 
 	public Vector<StringBuffer> getValues() {
@@ -45,7 +45,7 @@ public class InsertionIntoMariaDB implements Runnable, DBkeys {
 			}
 			try {
 				System.out.println("MariaDB thread in sleep");
-				Thread.sleep(1000);
+				Thread.sleep(7000);
 			} catch (Exception e) {
 				System.out.println("MariaDB thread throws exception during sleep");
 			}
