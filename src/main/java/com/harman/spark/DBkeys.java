@@ -56,5 +56,6 @@ public interface DBkeys {
 			SpeakerMode_Single = "SpeakerMode_Single";
 	public String AppToneToggle = "AppToneToggle", AppMFBMode = "AppMFBMode";
 	public String AppHFPToggle = "AppHFPToggle", AppEQMode = "AppEQMode";
+	public static String TAG = "*****************[TA]";
 
 }
