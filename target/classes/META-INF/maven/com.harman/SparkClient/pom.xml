@@ -1,0 +1,103 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.harman</groupId>
+	<artifactId>SparkClient</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
+	
+
+	<name>SparkClient</name>
+	<url>http://maven.apache.org</url>
+	<build>
+		<finalName>SparkClient</finalName>
+
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.3</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+
+<!-- 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					DO NOT include log4j.properties file in your Jar
+					<excludes> <exclude>**/log4j.properties</exclude> </excludes>
+					<archive>
+						<manifest>
+							Jar file entry point
+							<mainClass>com.harman.spark.SparkClient.java</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin> -->
+    <plugin>
+      <artifactId>maven-assembly-plugin</artifactId>
+      <configuration>
+        <descriptorRefs>
+          <descriptorRef>jar-with-dependencies</descriptorRef>
+        </descriptorRefs>
+        <archive>
+          <manifest>
+            <mainClass>com.harman.spark.SparkClient.java</mainClass>
+          </manifest>
+        </archive>
+      </configuration>
+    </plugin>
+
+
+		</plugins>
+	</build>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<repositories>
+		<repository>
+			<id>cloudera-repo-releases</id>
+			<url>https://repository.cloudera.com/artifactory/repo/</url>
+		</repository>
+	</repositories>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>org.apache.spark</groupId>
+			<artifactId>spark-core_2.11</artifactId>
+			<version>2.2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.spark</groupId>
+			<artifactId>spark-streaming_2.10</artifactId>
+			<version>1.6.1</version>
+		</dependency>
+		<!-- <dependency> <groupId>org.mongodb.spark</groupId> <artifactId>mongo-spark-connector_2.10</artifactId> 
+			<version>1.1.0</version> </dependency> -->
+		<!-- https://mvnrepository.com/artifact/org.mongodb.spark/mongo-spark-connector -->
+		<!-- https://mvnrepository.com/artifact/org.mongodb.spark/mongo-spark-connector -->
+		<dependency>
+			<groupId>org.mongodb.spark</groupId>
+			<artifactId>mongo-spark-connector_2.11</artifactId>
+			<version>2.2.1</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>org.apache.spark</groupId>
+			<artifactId>spark-sql_2.11</artifactId> <!-- matching Scala version -->
+			<version>2.2.0</version>  <!-- matching Spark Core version -->
+		</dependency>
+		<dependency>
+				<groupId>org.mongodb</groupId>
+				<artifactId>mongodb-driver</artifactId>
+				<version>3.4.3</version>
+		</dependency>
+		
+	</dependencies>
+</project>
