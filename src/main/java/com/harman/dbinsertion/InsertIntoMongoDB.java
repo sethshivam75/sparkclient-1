@@ -34,12 +34,13 @@ public class InsertIntoMongoDB implements Runnable {
 	}
 
 	private void inserIntoMongoDB(BlockingQueue<String> json) {
-		System.out.println(json);
+//		System.out.println(json);
 		List<Document> list = new ArrayList<>();
 		while (SparkClient.list.size() > 0) {
 			Document document;
 			try {
 				document = Document.parse(SparkClient.list.take().toString());
+				System.out.println("document");
 				list.add(document);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -58,6 +59,7 @@ public class InsertIntoMongoDB implements Runnable {
 
 		while (true) {
 			try {
+				System.out.println("while(true)");
 				synchronized (SparkClient.list) {
 					inserIntoMongoDB(SparkClient.list);
 				}
