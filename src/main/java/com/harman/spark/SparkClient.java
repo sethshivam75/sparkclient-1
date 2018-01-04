@@ -1,10 +1,8 @@
 package com.harman.spark;
 
-import java.util.ConcurrentModificationException;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
-import java.util.logging.Handler;
 
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
@@ -52,23 +50,19 @@ public class SparkClient implements DBkeys {
 
 					@Override
 					public void call(String s) throws Exception {
-						if (timer != null)
-							timer.cancel();
-						timer = new Timer();
-						timer.schedule(new TimerTask() {
-
-							@Override
-							public void run() {
-								new Thread(new ReadThread()).start();
-							}
-						}, 5 * 1000);
-						if (s.trim().equals(";") || s.trim().equals(";\n")) {
-							list.add(stringBuffer);
-							System.out.println("*****************[TA] outPut =" + stringBuffer);
-							stringBuffer.setLength(0);
-						} else {
-							stringBuffer.append(s);
-						}
+						System.out.println("*****************[TA] outPut =" + s);
+						/*
+						 * if (timer != null) timer.cancel(); timer = new
+						 * Timer(); timer.schedule(new TimerTask() {
+						 * 
+						 * @Override public void run() { new Thread(new
+						 * ReadThread()).start(); } }, 5 * 1000); if
+						 * (s.trim().equals(";") || s.trim().equals(";\n")) {
+						 * list.add(stringBuffer); System.out.println(
+						 * "*****************[TA] outPut =" + stringBuffer);
+						 * stringBuffer.setLength(0); } else {
+						 * stringBuffer.append(s); }
+						 */
 					}
 				});
 			}
