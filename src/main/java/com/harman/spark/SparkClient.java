@@ -24,17 +24,18 @@ public class SparkClient implements DBkeys {
 	static Timer timer;
 	@SuppressWarnings("unused")
 	private JavaStreamingContext ssc = null;
+	static InsertIntoMongoDB sparkMongoInsertion;
+	static InsertionIntoMariaDB mInsertionIntoMariaDB;
 
 	@SuppressWarnings("resource")
 	public static void main(String[] args) {
-		InsertionIntoMariaDB mInsertionIntoMariaDB = new InsertionIntoMariaDB();
-		InsertIntoMongoDB sparkMongoInsertion;
 		System.out.println("In main spark Client");
+		mInsertionIntoMariaDB = new InsertionIntoMariaDB();
+		sparkMongoInsertion = new InsertIntoMongoDB();
 		SparkConf sparkConf = new SparkConf().setMaster("local[*]").setAppName("SmartAudioAnalytics");
 		JavaSparkContext context = new JavaSparkContext(sparkConf);
 		JavaStreamingContext ssc = new JavaStreamingContext(context, new Duration(30000));
 		// TODO close ssc connection.
-		sparkMongoInsertion = new InsertIntoMongoDB();
 		JavaReceiverInputDStream<String> JsonReq = ssc.socketTextStream("localhost", 9997,
 				StorageLevels.MEMORY_AND_DISK_SER);
 		JsonReq.foreachRDD(new VoidFunction<JavaRDD<String>>() {
@@ -58,10 +59,7 @@ public class SparkClient implements DBkeys {
 
 							@Override
 							public void run() {
-								mInsertionIntoMariaDB.setValue(list);
-								sparkMongoInsertion.setValue(list);
-								list.clear();
-
+								new Thread(new ReadThread()).start();
 							}
 						}, 5 * 1000);
 						if (s.trim().equals(";") || s.trim().equals(";\n")) {
@@ -79,6 +77,17 @@ public class SparkClient implements DBkeys {
 		new Thread(mInsertionIntoMariaDB).start();
 		ssc.start();
 		ssc.awaitTermination();
+	}
+
+	static class ReadThread implements Runnable {
+
+		@Override
+		public void run() {
+			mInsertionIntoMariaDB.setValue(new Vector<>(list));
+			sparkMongoInsertion.setValue(new Vector<>(list));
+			list.clear();
+		}
+
 	}
 
 	private static StringBuffer stringBuffer = new StringBuffer();
