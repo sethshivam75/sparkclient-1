@@ -1,7 +1,10 @@
 package com.harman.spark;
 
 import java.util.ConcurrentModificationException;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Vector;
+import java.util.logging.Handler;
 
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
@@ -17,8 +20,8 @@ import com.harman.dbinsertion.InsertionIntoMariaDB;
 
 public class SparkClient implements DBkeys {
 
-	public static Vector<String> list = new Vector<>();
-
+	public static Vector<StringBuffer> list = new Vector<>();
+	static Timer timer;
 	@SuppressWarnings("unused")
 	private JavaStreamingContext ssc = null;
 
@@ -32,7 +35,6 @@ public class SparkClient implements DBkeys {
 		JavaStreamingContext ssc = new JavaStreamingContext(context, new Duration(30000));
 		// TODO close ssc connection.
 		sparkMongoInsertion = new InsertIntoMongoDB();
-
 		JavaReceiverInputDStream<String> JsonReq = ssc.socketTextStream("localhost", 9997,
 				StorageLevels.MEMORY_AND_DISK_SER);
 		JsonReq.foreachRDD(new VoidFunction<JavaRDD<String>>() {
@@ -49,25 +51,25 @@ public class SparkClient implements DBkeys {
 
 					@Override
 					public void call(String s) throws Exception {
+						if (timer != null)
+							timer.cancel();
+						timer = new Timer();
+						timer.schedule(new TimerTask() {
 
-						System.out.println("*****************[TA] size =" + list.size());
-						System.out.println("*****************[TA] outPut =" + stringBuffer);
-						try {
-							if (s.trim().equals(";") || s.trim().equals(";\n")) {
-								mInsertionIntoMariaDB.setValue(stringBuffer);
-								list.add(stringBuffer.toString());
-								System.out.println("*****************[TA] outPut =" + stringBuffer);
-								stringBuffer.setLength(0);
-							} else {
-								stringBuffer.append(s);
-							}
-						} catch (ConcurrentModificationException e) {
-							try {
-								list.add(stringBuffer.toString());
-							} catch (ConcurrentModificationException ex) {
+							@Override
+							public void run() {
+								mInsertionIntoMariaDB.setValue(list);
+								sparkMongoInsertion.setValue(list);
+								list.clear();
 
 							}
-							System.out.println(SparkClient.TAG + " ConcurrentModificationException(javaRDD)");
+						}, 5 * 1000);
+						if (s.trim().equals(";") || s.trim().equals(";\n")) {
+							list.add(stringBuffer);
+							System.out.println("*****************[TA] outPut =" + stringBuffer);
+							stringBuffer.setLength(0);
+						} else {
+							stringBuffer.append(s);
 						}
 					}
 				});

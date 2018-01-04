@@ -19,11 +19,11 @@ public class InsertionIntoMariaDB implements Runnable, DBkeys {
 	Vector<StringBuffer> listofJson = new Vector<StringBuffer>();
 	Object object = new Object();
 
-	public void setValue(StringBuffer json) {
+	public void setValue(Vector<StringBuffer>  json) {
 
-		//synchronized (object) {
-			this.listofJson.add(json);
-		//}
+		synchronized (object) {
+			this.listofJson.addAll(json);
+		}
 	}
 
 	public Vector<StringBuffer> getValues() {

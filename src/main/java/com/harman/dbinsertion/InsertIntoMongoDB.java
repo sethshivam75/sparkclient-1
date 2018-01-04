@@ -1,6 +1,5 @@
 package com.harman.dbinsertion;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.List;
@@ -13,22 +12,31 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
-public class InsertIntoMongoDB implements Runnable,Serializable {
+public class InsertIntoMongoDB implements Runnable {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -5996139900079881472L;
+	Vector<StringBuffer> listofJson = new Vector<StringBuffer>();
+	Object object = new Object();
 
-	public InsertIntoMongoDB() {
+	public void setValue(Vector<StringBuffer> json) {
 
+		synchronized (object) {
+			this.listofJson.addAll(json);
+		}
 	}
 
-	private void inserIntoMongoDB(Vector<String> json) {
+	public Vector<StringBuffer> getValues() {
+		synchronized (object) {
+			Vector<StringBuffer> temp = new Vector<>(listofJson);
+			listofJson.clear();
+			return temp;
+		}
+	}
+
+	private void inserIntoMongoDB(Vector<StringBuffer> json) {
 		System.out.println(json);
 		List<Document> list = new ArrayList<>();
-		for (String temp : json) {
-			Document document = Document.parse(temp);
+		for (StringBuffer temp : json) {
+			Document document = Document.parse(temp.toString());
 			list.add(document);
 		}
 		MongoClient mongoClient = new MongoClient("localhost", 27017);
@@ -43,10 +51,7 @@ public class InsertIntoMongoDB implements Runnable,Serializable {
 
 		while (true) {
 			try {
-				if (SparkClient.list.size() > 0) {
-					inserIntoMongoDB(new Vector<String>(SparkClient.list));
-					SparkClient.list.clear();
-				}
+				inserIntoMongoDB(new Vector<StringBuffer>(getValues()));
 			} catch (ConcurrentModificationException e) {
 				System.out.println(SparkClient.TAG + " ConcurrentModificationException");
 			}
