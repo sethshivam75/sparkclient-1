@@ -3,6 +3,8 @@ package com.harman.spark;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
@@ -18,7 +20,7 @@ import com.harman.dbinsertion.InsertionIntoMariaDB;
 
 public class SparkClient implements DBkeys {
 
-	public static Vector<StringBuffer> list = new Vector<>();
+	public static BlockingQueue<String> list = new ArrayBlockingQueue(100);
 	static Timer timer;
 	@SuppressWarnings("unused")
 	private JavaStreamingContext ssc = null;
@@ -50,19 +52,18 @@ public class SparkClient implements DBkeys {
 
 					@Override
 					public void call(String s) throws Exception {
-						System.out.println("*****************[TA] outPut =" + s);
-						/*
-						 * if (timer != null) timer.cancel(); timer = new
-						 * Timer(); timer.schedule(new TimerTask() {
-						 * 
-						 * @Override public void run() { new Thread(new
-						 * ReadThread()).start(); } }, 5 * 1000); if
-						 * (s.trim().equals(";") || s.trim().equals(";\n")) {
-						 * list.add(stringBuffer); System.out.println(
-						 * "*****************[TA] outPut =" + stringBuffer);
-						 * stringBuffer.setLength(0); } else {
-						 * stringBuffer.append(s); }
-						 */
+						// if (timer != null)
+						// timer.cancel();
+						// timer = new Timer();
+						// timer.schedule(new TimerTask() {
+						//
+						// @Override
+						// public void run() {
+						// new Thread(new ReadThread()).start();
+						// }
+						// }, 5 * 1000);
+						list.add(s);
+						list.notify();
 					}
 				});
 			}
@@ -77,8 +78,8 @@ public class SparkClient implements DBkeys {
 
 		@Override
 		public void run() {
-			mInsertionIntoMariaDB.setValue(new Vector<>(list));
-			sparkMongoInsertion.setValue(new Vector<>(list));
+			// mInsertionIntoMariaDB.setValue(new Vector<>(list));
+			// sparkMongoInsertion.setValue(new Vector<>(list));
 			list.clear();
 		}
 
