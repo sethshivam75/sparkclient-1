@@ -61,6 +61,13 @@ public class InsertIntoMongoDB implements Runnable {
 			try {
 				System.out.println("while(true)");
 				synchronized (SparkClient.list) {
+					if(SparkClient.list.size()<=0){
+						try {
+							SparkClient.list.wait();
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}else
 					inserIntoMongoDB(SparkClient.list);
 				}
 			} catch (ConcurrentModificationException e) {

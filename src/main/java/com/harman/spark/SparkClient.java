@@ -62,8 +62,11 @@ public class SparkClient implements DBkeys {
 						// new Thread(new ReadThread()).start();
 						// }
 						// }, 5 * 1000);
-						list.add(s);
-						list.notify();
+						System.out.println(list.size());
+						if (list.size() < 100) {
+							list.add(s);
+							list.notify();
+						}
 					}
 				});
 			}
