@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Vector;
-import java.util.concurrent.BlockingQueue;
 
 import org.bson.Document;
 
@@ -33,20 +32,13 @@ public class InsertIntoMongoDB implements Runnable {
 		}
 	}
 
-	private void inserIntoMongoDB(BlockingQueue<String> json) {
-//		System.out.println(json);
+	private void inserIntoMongoDB(Vector<StringBuffer> json) {
+		System.out.println(json);
 		List<Document> list = new ArrayList<>();
-		while (SparkClient.list.size() > 0) {
-			Document document;
-			try {
-				document = Document.parse(SparkClient.list.take().toString());
-				System.out.println("document");
-				list.add(document);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+		for (StringBuffer temp : json) {
+			Document document = Document.parse(temp.toString());
+			list.add(document);
 		}
-
 		MongoClient mongoClient = new MongoClient("localhost", 27017);
 		MongoDatabase database = mongoClient.getDatabase("DEVICE_INFO_STORE");
 		MongoCollection<Document> table = database.getCollection("SmartAudioAnalytics");
@@ -59,17 +51,7 @@ public class InsertIntoMongoDB implements Runnable {
 
 		while (true) {
 			try {
-				System.out.println("while(true)");
-				synchronized (SparkClient.list) {
-					if(SparkClient.list.size()<=0){
-						try {
-							SparkClient.list.wait();
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					}else
-					inserIntoMongoDB(SparkClient.list);
-				}
+				inserIntoMongoDB(new Vector<StringBuffer>(getValues()));
 			} catch (ConcurrentModificationException e) {
 				System.out.println(SparkClient.TAG + " ConcurrentModificationException");
 			}

@@ -1,5 +1,6 @@
 package com.harman.spark;
 
+import java.util.ConcurrentModificationException;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
@@ -36,6 +37,7 @@ public class SparkClient implements DBkeys {
 		// TODO close ssc connection.
 		JavaReceiverInputDStream<String> JsonReq = ssc.socketTextStream("localhost", 9997,
 				StorageLevels.MEMORY_AND_DISK_SER);
+
 		JsonReq.foreachRDD(new VoidFunction<JavaRDD<String>>() {
 
 			private static final long serialVersionUID = 1L;
@@ -50,8 +52,11 @@ public class SparkClient implements DBkeys {
 
 					@Override
 					public void call(String s) throws Exception {
-
-						list.add(stringBuffer);
+						try {
+							list.add(stringBuffer);
+						} catch (ConcurrentModificationException e) {
+							System.out.println("value is missed");
+						}
 					}
 				});
 			}
@@ -75,10 +80,14 @@ public class SparkClient implements DBkeys {
 
 		@Override
 		public void run() {
-			if (list.size() > 0) {
-				mInsertionIntoMariaDB.setValue(new Vector<>(list));
-				sparkMongoInsertion.setValue(new Vector<>(list));
-				list.clear();
+			try {
+				if (list.size() > 0) {
+					mInsertionIntoMariaDB.setValue(new Vector<>(list));
+					sparkMongoInsertion.setValue(new Vector<>(list));
+					list.clear();
+				}
+			} catch (ConcurrentModificationException e) {
+
 			}
 		}
 
