@@ -15,10 +15,10 @@ import org.apache.spark.streaming.api.java.JavaStreamingContext;
 import com.harman.dbinsertion.InsertIntoMongoDB;
 import com.harman.dbinsertion.InsertionIntoMariaDB;
 
-public class SparkClient implements DBkeys{
-	
+public class SparkClient implements DBkeys {
+
 	public static Vector<String> list = new Vector<>();
-	
+
 	@SuppressWarnings("unused")
 	private JavaStreamingContext ssc = null;
 
@@ -29,7 +29,7 @@ public class SparkClient implements DBkeys{
 		System.out.println("In main spark Client");
 		SparkConf sparkConf = new SparkConf().setMaster("local[*]").setAppName("SmartAudioAnalytics");
 		JavaSparkContext context = new JavaSparkContext(sparkConf);
-		JavaStreamingContext ssc = new JavaStreamingContext(context, new Duration(60000));
+		JavaStreamingContext ssc = new JavaStreamingContext(context, new Duration(30000));
 		// TODO close ssc connection.
 		sparkMongoInsertion = new InsertIntoMongoDB();
 
@@ -62,6 +62,11 @@ public class SparkClient implements DBkeys{
 								stringBuffer.append(s);
 							}
 						} catch (ConcurrentModificationException e) {
+							try {
+								list.add(stringBuffer.toString());
+							} catch (ConcurrentModificationException ex) {
+
+							}
 							System.out.println(SparkClient.TAG + " ConcurrentModificationException(javaRDD)");
 						}
 					}
