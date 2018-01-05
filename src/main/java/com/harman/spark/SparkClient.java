@@ -1,6 +1,8 @@
 package com.harman.spark;
 
 import java.util.ConcurrentModificationException;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
@@ -44,21 +46,28 @@ public class SparkClient implements DBkeys {
 
 			@Override
 			public void call(JavaRDD<String> rdd) throws Exception {
-
+				IsDataComing = false;
 				System.out.println("javaRDD");
-				rdd.foreach(new VoidFunction<String>() {
+				// Iterator<String> temp=rdd.toLocalIterator();
+				List<String> list = rdd.collect();
 
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void call(String s) throws Exception {
-						try {
-							list.add(stringBuffer);
-						} catch (ConcurrentModificationException e) {
-							System.out.println("value is missed");
-						}
-					}
-				});
+				for (String str : list) {
+					System.out.println(str);
+				}
+				/*
+				 * rdd.foreach(new VoidFunction<String>() {
+				 * 
+				 * private static final long serialVersionUID = 1L;
+				 * 
+				 * @Override public void call(String s) throws Exception { try {
+				 * IsDataComing = true; list.add(stringBuffer);
+				 * 
+				 * } catch (ConcurrentModificationException e) {
+				 * System.out.println("value is missed"); } }
+				 * 
+				 * 
+				 * });
+				 */
 			}
 		});
 
@@ -75,6 +84,8 @@ public class SparkClient implements DBkeys {
 		ssc.start();
 		ssc.awaitTermination();
 	}
+
+	static boolean IsDataComing;
 
 	static class ReadThread implements Runnable {
 
