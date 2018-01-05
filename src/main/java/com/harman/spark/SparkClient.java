@@ -2,7 +2,6 @@ package com.harman.spark;
 
 import java.util.ConcurrentModificationException;
 import java.util.Timer;
-import java.util.TimerTask;
 import java.util.Vector;
 
 import org.apache.spark.SparkConf;
@@ -13,13 +12,10 @@ import org.apache.spark.api.java.function.VoidFunction;
 import org.apache.spark.streaming.Duration;
 import org.apache.spark.streaming.api.java.JavaReceiverInputDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
-import org.bson.Document;
 
 import com.harman.dbinsertion.InsertIntoMongoDB;
 import com.harman.dbinsertion.InsertionIntoMariaDB;
 import com.mongodb.MongoClient;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
 
 public class SparkClient implements DBkeys {
 
@@ -27,14 +23,12 @@ public class SparkClient implements DBkeys {
 	static Timer timer;
 	@SuppressWarnings("unused")
 	private JavaStreamingContext ssc = null;
-	static InsertIntoMongoDB sparkMongoInsertion;
 	static InsertionIntoMariaDB mInsertionIntoMariaDB;
 
 	@SuppressWarnings("resource")
 	public static void main(String[] args) {
 		System.out.println("In main spark Client");
 		mInsertionIntoMariaDB = new InsertionIntoMariaDB();
-		sparkMongoInsertion = new InsertIntoMongoDB();
 		SparkConf sparkConf = new SparkConf().setMaster("local[*]").setAppName("SmartAudioAnalytics");
 		JavaSparkContext context = new JavaSparkContext(sparkConf);
 		JavaStreamingContext ssc = new JavaStreamingContext(context, new Duration(30000));
@@ -46,29 +40,31 @@ public class SparkClient implements DBkeys {
 
 			private static final long serialVersionUID = 1L;
 
+
 			@Override
 			public void call(JavaRDD<String> rdd) throws Exception {
 				IsDataComing = false;
 				System.out.println("javaRDD");
 				rdd.foreach(new VoidFunction<String>() {
 
-					/*
-					 * // Iterator<String> temp=rdd.toLocalIterator();
-					 * List<String> list = rdd.collect();
+					/**
 					 * 
-					 * for (String str : list) { System.out.println(str);
-					 * list.add(str); }
 					 */
-					MongoClient mongoClient = new MongoClient("localhost", 27017);
+					private static final long serialVersionUID = 1L;
 
 					@Override
 					public void call(String s) throws Exception {
 						System.out.println(s);
-						Document document = Document.parse(s);
-						MongoDatabase database = mongoClient.getDatabase("DEVICE_INFO_STORE");
-						MongoCollection<Document> table = database.getCollection("SmartAudioAnalytics");
-						table.insertOne(document);
-						mongoClient.close();
+						InsertIntoMongoDB.getInstance().openConnection();
+						InsertIntoMongoDB.getInstance().inserSingleRecordMongoDB(s);
+						/*
+						 * Document document = Document.parse(s); MongoDatabase
+						 * database =
+						 * mongoClient.getDatabase("DEVICE_INFO_STORE");
+						 * MongoCollection<Document> table =
+						 * database.getCollection("SmartAudioAnalytics");
+						 * table.insertOne(document); mongoClient.close();
+						 */
 					}
 
 				});
@@ -98,7 +94,5 @@ public class SparkClient implements DBkeys {
 		}
 
 	}
-
-	private static StringBuffer stringBuffer = new StringBuffer();
 
 }

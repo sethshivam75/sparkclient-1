@@ -16,6 +16,17 @@ public class InsertIntoMongoDB implements Runnable {
 
 	Vector<String> listofJson = new Vector<String>();
 	Object object = new Object();
+	static InsertIntoMongoDB insertIntoMongoDB = null;
+
+	private InsertIntoMongoDB() {
+
+	}
+
+	public static InsertIntoMongoDB getInstance() {
+		if (insertIntoMongoDB == null)
+			insertIntoMongoDB = new InsertIntoMongoDB();
+		return insertIntoMongoDB;
+	}
 
 	public void setValue(Vector<String> json) {
 
@@ -32,7 +43,7 @@ public class InsertIntoMongoDB implements Runnable {
 		}
 	}
 
-	private void inserIntoMongoDB(Vector<String> json) {
+	public void inserIntoMongoDB(Vector<String> json) {
 		System.out.println(json);
 		List<Document> list = new ArrayList<>();
 		for (String temp : json) {
@@ -44,6 +55,21 @@ public class InsertIntoMongoDB implements Runnable {
 		MongoCollection<Document> table = database.getCollection("SmartAudioAnalytics");
 		table.insertMany(list);
 		mongoClient.close();
+	}
+
+	MongoClient mongoClient = null;
+
+	public void openConnection() {
+		if (mongoClient == null)
+			mongoClient = new MongoClient("localhost", 27017);
+	}
+
+	public void inserSingleRecordMongoDB(String json) {
+		System.out.println(json);
+		Document document = Document.parse(json.toString());
+		MongoDatabase database = mongoClient.getDatabase("DEVICE_INFO_STORE");
+		MongoCollection<Document> table = database.getCollection("SmartAudioAnalytics");
+		table.insertOne(document);
 	}
 
 	@Override
