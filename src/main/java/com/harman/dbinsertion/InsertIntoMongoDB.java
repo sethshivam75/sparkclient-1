@@ -28,6 +28,23 @@ public class InsertIntoMongoDB implements Runnable {
 		return insertIntoMongoDB;
 	}
 
+	
+	MongoClient mongoClient = null;
+
+	public void openConnection() {
+		if (mongoClient == null)
+			mongoClient = new MongoClient("localhost", 27017);
+	}
+
+	public void inserSingleRecordMongoDB(String json) {
+		System.out.println(json);
+		Document document = Document.parse(json.toString());
+		MongoDatabase database = mongoClient.getDatabase("DEVICE_INFO_STORE");
+		MongoCollection<Document> table = database.getCollection("SmartAudioAnalytics");
+		table.insertOne(document);
+	}
+	
+	
 	public void setValue(Vector<String> json) {
 
 		synchronized (object) {
@@ -57,20 +74,7 @@ public class InsertIntoMongoDB implements Runnable {
 		mongoClient.close();
 	}
 
-	MongoClient mongoClient = null;
 
-	public void openConnection() {
-		if (mongoClient == null)
-			mongoClient = new MongoClient("localhost", 27017);
-	}
-
-	public void inserSingleRecordMongoDB(String json) {
-		System.out.println(json);
-		Document document = Document.parse(json.toString());
-		MongoDatabase database = mongoClient.getDatabase("DEVICE_INFO_STORE");
-		MongoCollection<Document> table = database.getCollection("SmartAudioAnalytics");
-		table.insertOne(document);
-	}
 
 	@Override
 	public void run() {

@@ -19,8 +19,6 @@ import com.mongodb.MongoClient;
 
 public class SparkClient implements DBkeys {
 
-	public static Vector<StringBuffer> list = new Vector<>();
-	static Timer timer;
 	@SuppressWarnings("unused")
 	private JavaStreamingContext ssc = null;
 	static InsertionIntoMariaDB mInsertionIntoMariaDB;
@@ -28,7 +26,6 @@ public class SparkClient implements DBkeys {
 	@SuppressWarnings("resource")
 	public static void main(String[] args) {
 		System.out.println("In main spark Client");
-		mInsertionIntoMariaDB = new InsertionIntoMariaDB();
 		SparkConf sparkConf = new SparkConf().setMaster("local[*]").setAppName("SmartAudioAnalytics");
 		JavaSparkContext context = new JavaSparkContext(sparkConf);
 		JavaStreamingContext ssc = new JavaStreamingContext(context, new Duration(30000));
@@ -40,11 +37,8 @@ public class SparkClient implements DBkeys {
 
 			private static final long serialVersionUID = 1L;
 
-
 			@Override
 			public void call(JavaRDD<String> rdd) throws Exception {
-				IsDataComing = false;
-				System.out.println("javaRDD");
 				rdd.foreach(new VoidFunction<String>() {
 
 					/**
@@ -57,42 +51,14 @@ public class SparkClient implements DBkeys {
 						System.out.println(s);
 						InsertIntoMongoDB.getInstance().openConnection();
 						InsertIntoMongoDB.getInstance().inserSingleRecordMongoDB(s);
-						/*
-						 * Document document = Document.parse(s); MongoDatabase
-						 * database =
-						 * mongoClient.getDatabase("DEVICE_INFO_STORE");
-						 * MongoCollection<Document> table =
-						 * database.getCollection("SmartAudioAnalytics");
-						 * table.insertOne(document); mongoClient.close();
-						 */
+						InsertionIntoMariaDB.getInstance().insertIntoMariaDB(s);
 					}
 
 				});
 			}
 		});
-		// new Thread(sparkMongoInsertion).start();
-		// new Thread(mInsertionIntoMariaDB).start();
 		ssc.start();
 		ssc.awaitTermination();
-	}
-
-	static boolean IsDataComing;
-
-	static class ReadThread implements Runnable {
-
-		@Override
-		public void run() {
-			try {
-				if (list.size() > 0) {
-					// mInsertionIntoMariaDB.setValue(new Vector<>(list));
-					// sparkMongoInsertion.setValue(new Vector<>(list));
-					// list.clear();
-				}
-			} catch (ConcurrentModificationException e) {
-
-			}
-		}
-
 	}
 
 }

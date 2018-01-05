@@ -19,7 +19,7 @@ public class InsertionIntoMariaDB implements Runnable, DBkeys {
 	Vector<String> listofJson = new Vector<String>();
 	Object object = new Object();
 
-	public void setValue(Vector<String>  json) {
+	public void setValue(Vector<String> json) {
 
 		synchronized (object) {
 			this.listofJson.addAll(json);
@@ -53,7 +53,19 @@ public class InsertionIntoMariaDB implements Runnable, DBkeys {
 		}
 	}
 
-	private String insertIntoMariaDB(String record) {
+	private InsertionIntoMariaDB() {
+
+	}
+
+	static InsertionIntoMariaDB isInsertionIntoMariaDB = null;
+
+	public static InsertionIntoMariaDB getInstance() {
+		if (isInsertionIntoMariaDB == null)
+			isInsertionIntoMariaDB = new InsertionIntoMariaDB();
+		return isInsertionIntoMariaDB;
+	}
+
+	public String insertIntoMariaDB(String record) {
 		ErrorType errorType = ErrorType.NO_ERROR;
 		JSONObject response = new JSONObject();
 		try {
@@ -103,8 +115,10 @@ public class InsertionIntoMariaDB implements Runnable, DBkeys {
 			response.put("cmd", "UpdateSmartAudioAnalyticsRes");
 			System.out.println("fail to parse");
 		} finally {
-			MariaModel mariaModel = MariaModel.getInstance();
-			mariaModel.closeConnection();
+			/*
+			 * MariaModel mariaModel = MariaModel.getInstance();
+			 * mariaModel.closeConnection();
+			 */
 		}
 		System.out.println(errorType.name());
 		return response.toString();

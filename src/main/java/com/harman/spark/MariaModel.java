@@ -28,6 +28,8 @@ public class MariaModel implements MariaStructure, DBkeys {
 	Connection connn = null;
 
 	public Connection openConnection() {
+		if (connn == null)
+			return connn;
 		try {
 			Class.forName("org.mariadb.jdbc.Driver");
 			// STEP 3: Open a connection
