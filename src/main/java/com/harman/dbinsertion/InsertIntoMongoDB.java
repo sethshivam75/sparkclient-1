@@ -14,28 +14,28 @@ import com.mongodb.client.MongoDatabase;
 
 public class InsertIntoMongoDB implements Runnable {
 
-	Vector<StringBuffer> listofJson = new Vector<StringBuffer>();
+	Vector<String> listofJson = new Vector<String>();
 	Object object = new Object();
 
-	public void setValue(Vector<StringBuffer> json) {
+	public void setValue(Vector<String> json) {
 
 		synchronized (object) {
 			this.listofJson.addAll(json);
 		}
 	}
 
-	public Vector<StringBuffer> getValues() {
+	public Vector<String> getValues() {
 		synchronized (object) {
-			Vector<StringBuffer> temp = new Vector<>(listofJson);
+			Vector<String> temp = new Vector<>(listofJson);
 			listofJson.clear();
 			return temp;
 		}
 	}
 
-	private void inserIntoMongoDB(Vector<StringBuffer> json) {
+	private void inserIntoMongoDB(Vector<String> json) {
 		System.out.println(json);
 		List<Document> list = new ArrayList<>();
-		for (StringBuffer temp : json) {
+		for (String temp : json) {
 			Document document = Document.parse(temp.toString());
 			list.add(document);
 		}
@@ -51,12 +51,15 @@ public class InsertIntoMongoDB implements Runnable {
 
 		while (true) {
 			try {
-				inserIntoMongoDB(new Vector<StringBuffer>(getValues()));
+				System.out.println("inserting into Thread sleep.");
+				Vector<String> list = getValues();
+				if (list.size() > 0)
+					inserIntoMongoDB(list);
 			} catch (ConcurrentModificationException e) {
 				System.out.println(SparkClient.TAG + " ConcurrentModificationException");
 			}
 			try {
-				System.out.println(SparkClient.TAG + "Thread sleep.");
+				System.out.println("Mongodb Thread sleep.");
 				Thread.sleep(20 * 1000);
 			} catch (Exception e) {
 

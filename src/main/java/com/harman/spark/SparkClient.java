@@ -1,8 +1,6 @@
 package com.harman.spark;
 
 import java.util.ConcurrentModificationException;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
@@ -15,9 +13,13 @@ import org.apache.spark.api.java.function.VoidFunction;
 import org.apache.spark.streaming.Duration;
 import org.apache.spark.streaming.api.java.JavaReceiverInputDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
+import org.bson.Document;
 
 import com.harman.dbinsertion.InsertIntoMongoDB;
 import com.harman.dbinsertion.InsertionIntoMariaDB;
+import com.mongodb.MongoClient;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 
 public class SparkClient implements DBkeys {
 
@@ -48,39 +50,32 @@ public class SparkClient implements DBkeys {
 			public void call(JavaRDD<String> rdd) throws Exception {
 				IsDataComing = false;
 				System.out.println("javaRDD");
-				// Iterator<String> temp=rdd.toLocalIterator();
-				List<String> list = rdd.collect();
+				rdd.foreach(new VoidFunction<String>() {
 
-				for (String str : list) {
-					System.out.println(str);
-				}
-				/*
-				 * rdd.foreach(new VoidFunction<String>() {
-				 * 
-				 * private static final long serialVersionUID = 1L;
-				 * 
-				 * @Override public void call(String s) throws Exception { try {
-				 * IsDataComing = true; list.add(stringBuffer);
-				 * 
-				 * } catch (ConcurrentModificationException e) {
-				 * System.out.println("value is missed"); } }
-				 * 
-				 * 
-				 * });
-				 */
+					/*
+					 * // Iterator<String> temp=rdd.toLocalIterator();
+					 * List<String> list = rdd.collect();
+					 * 
+					 * for (String str : list) { System.out.println(str);
+					 * list.add(str); }
+					 */
+					MongoClient mongoClient = new MongoClient("localhost", 27017);
+
+					@Override
+					public void call(String s) throws Exception {
+						System.out.println(s);
+						Document document = Document.parse(s);
+						MongoDatabase database = mongoClient.getDatabase("DEVICE_INFO_STORE");
+						MongoCollection<Document> table = database.getCollection("SmartAudioAnalytics");
+						table.insertOne(document);
+						mongoClient.close();
+					}
+
+				});
 			}
 		});
-
-		timer = new Timer();
-		timer.scheduleAtFixedRate(new TimerTask() {
-
-			@Override
-			public void run() {
-				new Thread(new ReadThread()).start();
-			}
-		}, 35 * 1000, 7000);
-		new Thread(sparkMongoInsertion).start();
-		new Thread(mInsertionIntoMariaDB).start();
+		// new Thread(sparkMongoInsertion).start();
+		// new Thread(mInsertionIntoMariaDB).start();
 		ssc.start();
 		ssc.awaitTermination();
 	}
@@ -93,9 +88,9 @@ public class SparkClient implements DBkeys {
 		public void run() {
 			try {
 				if (list.size() > 0) {
-					mInsertionIntoMariaDB.setValue(new Vector<>(list));
-					sparkMongoInsertion.setValue(new Vector<>(list));
-					list.clear();
+					// mInsertionIntoMariaDB.setValue(new Vector<>(list));
+					// sparkMongoInsertion.setValue(new Vector<>(list));
+					// list.clear();
 				}
 			} catch (ConcurrentModificationException e) {
 

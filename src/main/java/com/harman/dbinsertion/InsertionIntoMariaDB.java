@@ -16,19 +16,19 @@ import com.harman.utils.HarmanParser;
 
 public class InsertionIntoMariaDB implements Runnable, DBkeys {
 
-	Vector<StringBuffer> listofJson = new Vector<StringBuffer>();
+	Vector<String> listofJson = new Vector<String>();
 	Object object = new Object();
 
-	public void setValue(Vector<StringBuffer>  json) {
+	public void setValue(Vector<String>  json) {
 
 		synchronized (object) {
 			this.listofJson.addAll(json);
 		}
 	}
 
-	public Vector<StringBuffer> getValues() {
+	public Vector<String> getValues() {
 		synchronized (object) {
-			Vector<StringBuffer> temp = new Vector<>(listofJson);
+			Vector<String> temp = new Vector<>(listofJson);
 			listofJson.clear();
 			return temp;
 		}
@@ -38,14 +38,15 @@ public class InsertionIntoMariaDB implements Runnable, DBkeys {
 	public void run() {
 
 		while (true) {
-			Vector<StringBuffer> listofJson = getValues();
-			for (StringBuffer record : listofJson) {
+			Vector<String> listofJson = getValues();
+			for (String record : listofJson) {
+				System.out.println("Inserting into mariadb");
 				String response = insertIntoMariaDB(record.toString());
 				System.out.println(response);
 			}
 			try {
 				System.out.println("MariaDB thread in sleep");
-				Thread.sleep(7000);
+				Thread.sleep(5000);
 			} catch (Exception e) {
 				System.out.println("MariaDB thread throws exception during sleep");
 			}
