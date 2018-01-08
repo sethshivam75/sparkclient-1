@@ -1,57 +1,18 @@
 package com.harman.dbinsertion;
 
 import java.sql.Connection;
-import java.util.Vector;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.harman.spark.AppAnalyticsModel;
-import com.harman.spark.DBkeys;
-import com.harman.spark.DeviceAnalyticsModel;
-import com.harman.spark.HarmanDeviceModel;
-import com.harman.spark.MariaModel;
+import com.harman.models.AppAnalyticsModel;
+import com.harman.models.DBkeys;
+import com.harman.models.DeviceAnalyticsModel;
+import com.harman.models.HarmanDeviceModel;
 import com.harman.utils.ErrorType;
 import com.harman.utils.HarmanParser;
 
-public class InsertionIntoMariaDB implements Runnable, DBkeys {
-
-	Vector<String> listofJson = new Vector<String>();
-	Object object = new Object();
-
-	public void setValue(Vector<String> json) {
-
-		synchronized (object) {
-			this.listofJson.addAll(json);
-		}
-	}
-
-	public Vector<String> getValues() {
-		synchronized (object) {
-			Vector<String> temp = new Vector<>(listofJson);
-			listofJson.clear();
-			return temp;
-		}
-	}
-
-	@Override
-	public void run() {
-
-		while (true) {
-			Vector<String> listofJson = getValues();
-			for (String record : listofJson) {
-				System.out.println("Inserting into mariadb");
-				String response = insertIntoMariaDB(record.toString());
-				System.out.println(response);
-			}
-			try {
-				System.out.println("MariaDB thread in sleep");
-				Thread.sleep(5000);
-			} catch (Exception e) {
-				System.out.println("MariaDB thread throws exception during sleep");
-			}
-		}
-	}
+public class InsertionIntoMariaDB implements DBkeys {
 
 	private InsertionIntoMariaDB() {
 
@@ -64,6 +25,8 @@ public class InsertionIntoMariaDB implements Runnable, DBkeys {
 			isInsertionIntoMariaDB = new InsertionIntoMariaDB();
 		return isInsertionIntoMariaDB;
 	}
+
+	private int featureCounter = 0;
 
 	public String insertIntoMariaDB(String record) {
 		ErrorType errorType = ErrorType.NO_ERROR;
@@ -86,6 +49,9 @@ public class InsertionIntoMariaDB implements Runnable, DBkeys {
 				DeviceAnalyticsModel deviceAnalyticsModel = harmanParser.getParseDeviceAnalyticsModel(
 						jsonObject.getJSONObject(DeviceAnalytics), deviceModel.getMacAddress());
 				errorType = mariaModel.insertDeviceAnalytics(deviceAnalyticsModel, connection);
+				
+				updateFeatureCounter(deviceAnalyticsModel.getmDeviceAnaModelList().get(CriticalTemperatureShutDown));
+				
 				System.out.println(errorType.name());
 			} catch (JSONException e) {
 				errorType = ErrorType.INVALID_JSON;
@@ -122,6 +88,18 @@ public class InsertionIntoMariaDB implements Runnable, DBkeys {
 		}
 		System.out.println(errorType.name());
 		return response.toString();
+	}
+
+	public int getFeatureCounter() {
+		return featureCounter;
+	}
+
+	public void updateFeatureCounter(int featureCounter) {
+		featureCounter += featureCounter;
+	}
+
+	public void resetFeatureCounter() {
+		featureCounter = 0;
 	}
 
 }

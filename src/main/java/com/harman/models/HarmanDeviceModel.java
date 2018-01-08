@@ -1,4 +1,4 @@
-package com.harman.spark;
+package com.harman.models;
 
 public class HarmanDeviceModel {
 

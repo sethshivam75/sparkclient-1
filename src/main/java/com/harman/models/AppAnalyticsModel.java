@@ -1,14 +1,12 @@
-package com.harman.spark;
+package com.harman.models;
 
 import java.util.LinkedHashMap;
 
-public class DeviceAnalyticsModel {
-
+public class AppAnalyticsModel {
 	private LinkedHashMap<String, Integer> mDeviceAnaModelList = new LinkedHashMap<String, Integer>();
-	private String[] keys = { "Broadcaster", "Receiver", "CriticalTemperatureShutDown", "PowerOnOffCount", "EQSettings",
-			"PowerBankUsage" };
+	private String[] keys = { "SpeakerMode_Stereo", "SpeakerMode_Party", "SpeakerMode_Single", "AppToneToggle",
+			"AppMFBMode", "AppHFPToggle", "AppEQMode" };
 	private String macaddress;
-
 	public String getMacaddress() {
 		return macaddress;
 	}
@@ -29,4 +27,7 @@ public class DeviceAnalyticsModel {
 		return keys;
 	}
 
+	public void setKeys(String[] keys) {
+		this.keys = keys;
+	}
 }

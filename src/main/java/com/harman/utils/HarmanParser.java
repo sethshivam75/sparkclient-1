@@ -3,9 +3,9 @@ package com.harman.utils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.harman.spark.AppAnalyticsModel;
-import com.harman.spark.DeviceAnalyticsModel;
-import com.harman.spark.HarmanDeviceModel;
+import com.harman.models.AppAnalyticsModel;
+import com.harman.models.DeviceAnalyticsModel;
+import com.harman.models.HarmanDeviceModel;
 
 public class HarmanParser {
 
