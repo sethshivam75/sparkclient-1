@@ -40,7 +40,7 @@ public class InsertIntoMongoDB {
 
 	public void inserSingleRecordMongoDB(String json) {
 		try {
-			System.out.println(json);
+			System.out.println("*************Inserting into mongo");
 			Document document = Document.parse(json.toString());
 			MongoDatabase database = mongoClient.getDatabase("DEVICE_INFO_STORE");
 			MongoCollection<Document> table = database.getCollection("SmartAudioAnalytics");
@@ -51,7 +51,7 @@ public class InsertIntoMongoDB {
 	}
 
 	public void inserIntoMongoDB(Vector<String> json) {
-		System.out.println(json);
+		//System.out.println(json);
 		List<Document> list = new ArrayList<>();
 		for (String temp : json) {
 			Document document = Document.parse(temp.toString());
