@@ -47,11 +47,11 @@ public class InsertIntoMongoDB {
 			table.insertOne(document);
 		} catch (Exception e) {
 			e.printStackTrace();
+			System.out.println("Mongo : "+e.getMessage());
 		}
 	}
 
 	public void inserIntoMongoDB(Vector<String> json) {
-		//System.out.println(json);
 		List<Document> list = new ArrayList<>();
 		for (String temp : json) {
 			Document document = Document.parse(temp.toString());
