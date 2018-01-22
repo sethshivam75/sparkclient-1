@@ -1,12 +1,13 @@
 package com.harman.spark;
 
+import java.util.ArrayList;
+
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.StorageLevels;
 import org.apache.spark.api.java.function.VoidFunction;
 import org.apache.spark.streaming.Duration;
-import org.apache.spark.streaming.api.java.JavaReceiverInputDStream;
+import org.apache.spark.streaming.api.java.JavaDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
 
 import com.harman.dbinsertion.InsertIntoMongoDB;
@@ -21,15 +22,20 @@ public class SparkClient implements DBkeys {
 
 	@SuppressWarnings("resource")
 	public static void main(String[] args) {
-		System.out.println("In main spark Client");
-		SparkConf sparkConf = new SparkConf().setMaster("local[*]").setAppName("SmartAudioAnalytics");
-		JavaSparkContext context = new JavaSparkContext(sparkConf);
-		JavaStreamingContext ssc = new JavaStreamingContext(context, new Duration(30000));
-		// TODO close ssc connection.
-		JavaReceiverInputDStream<String> JsonReq = ssc.socketTextStream("localhost", 9997,
-				StorageLevels.MEMORY_AND_DISK_SER);
+		System.out.println("52.165.145.168");
+		SparkConf sparkConf = new SparkConf().setMaster("spark://10.0.0.5:7077").setAppName("SmartAudioAnalytics");
+		System.out.println("1");
+		JavaStreamingContext ssc = new JavaStreamingContext(sparkConf, new Duration(30000));
 
-		JsonReq.foreachRDD(new VoidFunction<JavaRDD<String>>() {
+		JavaDStream<String> JsonReq1 = ssc.socketTextStream("52.165.145.168", 9997, StorageLevels.MEMORY_AND_DISK_SER);
+
+		JavaDStream<String> JsonReq2 = ssc.socketTextStream("52.165.145.168", 9997, StorageLevels.MEMORY_AND_DISK_SER);
+
+		ArrayList<JavaDStream<String>> streamList = new ArrayList<JavaDStream<String>>();
+		streamList.add(JsonReq1);
+		JavaDStream<String> UnionStream = ssc.union(JsonReq2, streamList);
+
+		UnionStream.foreachRDD(new VoidFunction<JavaRDD<String>>() {
 
 			private static final long serialVersionUID = 1L;
 
@@ -37,7 +43,6 @@ public class SparkClient implements DBkeys {
 			public void call(JavaRDD<String> rdd) throws Exception {
 
 				long count = rdd.count();
-
 				rdd.foreach(new VoidFunction<String>() {
 
 					private static final long serialVersionUID = 1L;

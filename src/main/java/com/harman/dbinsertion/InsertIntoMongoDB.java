@@ -35,7 +35,7 @@ public class InsertIntoMongoDB {
 	 */
 	public void openConnection() {
 		if (mongoClient == null)
-			mongoClient = new MongoClient("localhost", 27017);
+			mongoClient = new MongoClient("10.0.0.5", 27017);
 	}
 
 	public void inserSingleRecordMongoDB(String json) {
