@@ -34,8 +34,9 @@ public class InsertIntoMongoDB {
 	 * Connection opens once only, and kept open till the Sparkclient runs
 	 */
 	public void openConnection() {
-		if (mongoClient == null)
-			mongoClient = new MongoClient("10.0.0.5", 27017);
+		if (mongoClient == null){
+			mongoClient = new MongoClient("10.0.0.4", 27017);
+		}
 	}
 
 	public void inserSingleRecordMongoDB(String json) {
