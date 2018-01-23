@@ -23,9 +23,9 @@ public class SparkClient implements DBkeys {
 	@SuppressWarnings("resource")
 	public static void main(String[] args) {
 		System.out.println("52.165.145.168");
-		SparkConf sparkConf = new SparkConf().setMaster("spark://10.0.0.5:7077").setAppName("SmartAudioAnalytics");
+		SparkConf sparkConf = new SparkConf().setMaster("spark://10.0.0.5:7077").set("spark.cores.max","3").setAppName("SmartAudioAnalytics");
 		System.out.println("1");
-		JavaStreamingContext ssc = new JavaStreamingContext(sparkConf, new Duration(30000));
+		JavaStreamingContext ssc = new JavaStreamingContext(sparkConf, new Duration(3000));
 
 		JavaDStream<String> JsonReq1 = ssc.socketTextStream("52.165.145.168", 9997, StorageLevels.MEMORY_AND_DISK_SER);
 
