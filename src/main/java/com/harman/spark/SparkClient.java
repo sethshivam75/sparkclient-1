@@ -9,15 +9,6 @@ import org.apache.spark.api.java.function.VoidFunction;
 import org.apache.spark.streaming.Duration;
 import org.apache.spark.streaming.api.java.JavaDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
-import org.apache.spark.streaming.scheduler.StreamingListener;
-import org.apache.spark.streaming.scheduler.StreamingListenerBatchCompleted;
-import org.apache.spark.streaming.scheduler.StreamingListenerBatchStarted;
-import org.apache.spark.streaming.scheduler.StreamingListenerBatchSubmitted;
-import org.apache.spark.streaming.scheduler.StreamingListenerOutputOperationCompleted;
-import org.apache.spark.streaming.scheduler.StreamingListenerOutputOperationStarted;
-import org.apache.spark.streaming.scheduler.StreamingListenerReceiverError;
-import org.apache.spark.streaming.scheduler.StreamingListenerReceiverStarted;
-import org.apache.spark.streaming.scheduler.StreamingListenerReceiverStopped;
 
 import com.harman.dbinsertion.InsertIntoMongoDB;
 import com.harman.dbinsertion.InsertionIntoMariaDB;
@@ -35,7 +26,7 @@ public class SparkClient implements DBkeys {
 		SparkConf sparkConf = new SparkConf().setMaster("spark://10.0.0.5:7077").setAppName("SmartAudioAnalytics");
 		System.out.println("1");
 		JavaStreamingContext ssc = new JavaStreamingContext(sparkConf, new Duration(3000));
-		ssc.addStreamingListener(new StreamingListener() {
+		/*ssc.addStreamingListener(new StreamingListener() {
 			
 			@Override
 			public void onReceiverStopped(StreamingListenerReceiverStopped arg0) {
@@ -88,7 +79,7 @@ public class SparkClient implements DBkeys {
 			public void onBatchCompleted(StreamingListenerBatchCompleted arg0) {
 				System.out.println("onBatchCompleted");
 			}
-		});
+		});*/
 		JavaDStream<String> JsonReq1 = ssc.socketTextStream("52.165.145.168", 9997, StorageLevels.MEMORY_AND_DISK_SER);
 		JavaDStream<String> JsonReq2 = ssc.socketTextStream("52.165.145.168", 9997, StorageLevels.MEMORY_AND_DISK_SER);
 		ArrayList<JavaDStream<String>> streamList = new ArrayList<JavaDStream<String>>();
