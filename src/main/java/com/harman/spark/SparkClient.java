@@ -26,74 +26,69 @@ public class SparkClient implements DBkeys {
 		SparkConf sparkConf = new SparkConf().setMaster("spark://10.0.0.5:7077").setAppName("SmartAudioAnalytics");
 		System.out.println("1");
 		JavaStreamingContext ssc = new JavaStreamingContext(sparkConf, new Duration(3000));
-		/*ssc.addStreamingListener(new StreamingListener() {
-			
-			@Override
-			public void onReceiverStopped(StreamingListenerReceiverStopped arg0) {
-				// TODO Auto-generated method stub
-				System.out.println("onReceiverStopped");
-			}
-			
-			@Override
-			public void onReceiverStarted(StreamingListenerReceiverStarted arg0) {
-				// TODO Auto-generated method stub
-				System.out.println("onReceiverStarted");
-				
-			}
-			
-			@Override
-			public void onReceiverError(StreamingListenerReceiverError arg0) {
-				// TODO Auto-generated method stub
-				System.out.println("onReceiverError");
-				
-			}
-			
-			@Override
-			public void onOutputOperationStarted(StreamingListenerOutputOperationStarted arg0) {
-				// TODO Auto-generated method stub
-				System.out.println("onOutputOperationStarted");
-				
-			}
-			
-			@Override
-			public void onOutputOperationCompleted(StreamingListenerOutputOperationCompleted arg0) {
-				// TODO Auto-generated method stub
-				System.out.println("onOutputOperationCompleted");
-				
-			}
-			
-			@Override
-			public void onBatchSubmitted(StreamingListenerBatchSubmitted arg0) {
-				// TODO Auto-generated method stub
-				System.out.println("onBatchSubmitted");
-				
-			}
-			
-			@Override
-			public void onBatchStarted(StreamingListenerBatchStarted arg0) {
-				// TODO Auto-generated method stub
-				System.out.println("onBatchStarted");
-			}
-			
-			@Override
-			public void onBatchCompleted(StreamingListenerBatchCompleted arg0) {
-				System.out.println("onBatchCompleted");
-			}
-		});*/
+		/*
+		 * ssc.addStreamingListener(new StreamingListener() {
+		 * 
+		 * @Override public void
+		 * onReceiverStopped(StreamingListenerReceiverStopped arg0) { // TODO
+		 * Auto-generated method stub System.out.println("onReceiverStopped"); }
+		 * 
+		 * @Override public void
+		 * onReceiverStarted(StreamingListenerReceiverStarted arg0) { // TODO
+		 * Auto-generated method stub System.out.println("onReceiverStarted");
+		 * 
+		 * }
+		 * 
+		 * @Override public void onReceiverError(StreamingListenerReceiverError
+		 * arg0) { // TODO Auto-generated method stub
+		 * System.out.println("onReceiverError");
+		 * 
+		 * }
+		 * 
+		 * @Override public void
+		 * onOutputOperationStarted(StreamingListenerOutputOperationStarted
+		 * arg0) { // TODO Auto-generated method stub
+		 * System.out.println("onOutputOperationStarted");
+		 * 
+		 * }
+		 * 
+		 * @Override public void
+		 * onOutputOperationCompleted(StreamingListenerOutputOperationCompleted
+		 * arg0) { // TODO Auto-generated method stub
+		 * System.out.println("onOutputOperationCompleted");
+		 * 
+		 * }
+		 * 
+		 * @Override public void
+		 * onBatchSubmitted(StreamingListenerBatchSubmitted arg0) { // TODO
+		 * Auto-generated method stub System.out.println("onBatchSubmitted");
+		 * 
+		 * }
+		 * 
+		 * @Override public void onBatchStarted(StreamingListenerBatchStarted
+		 * arg0) { // TODO Auto-generated method stub
+		 * System.out.println("onBatchStarted"); }
+		 * 
+		 * @Override public void
+		 * onBatchCompleted(StreamingListenerBatchCompleted arg0) {
+		 * System.out.println("onBatchCompleted"); } });
+		 */
 		JavaDStream<String> JsonReq1 = ssc.socketTextStream("52.165.145.168", 9997, StorageLevels.MEMORY_AND_DISK_SER);
 		JavaDStream<String> JsonReq2 = ssc.socketTextStream("52.165.145.168", 9997, StorageLevels.MEMORY_AND_DISK_SER);
 		ArrayList<JavaDStream<String>> streamList = new ArrayList<JavaDStream<String>>();
 		streamList.add(JsonReq1);
 		JavaDStream<String> UnionStream = ssc.union(JsonReq2, streamList);
-		
+
 		UnionStream.foreachRDD(new VoidFunction<JavaRDD<String>>() {
 
 			private static final long serialVersionUID = 1L;
-
+			int total=0;
 			@Override
 			public void call(JavaRDD<String> rdd) throws Exception {
-
+					
 				long count = rdd.count();
+				total+=count;
+				System.out.println(total);
 				rdd.foreach(new VoidFunction<String>() {
 
 					private static final long serialVersionUID = 1L;
