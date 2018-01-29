@@ -9,6 +9,15 @@ import org.apache.spark.api.java.function.VoidFunction;
 import org.apache.spark.streaming.Duration;
 import org.apache.spark.streaming.api.java.JavaDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
+import org.apache.spark.streaming.scheduler.StreamingListener;
+import org.apache.spark.streaming.scheduler.StreamingListenerBatchCompleted;
+import org.apache.spark.streaming.scheduler.StreamingListenerBatchStarted;
+import org.apache.spark.streaming.scheduler.StreamingListenerBatchSubmitted;
+import org.apache.spark.streaming.scheduler.StreamingListenerOutputOperationCompleted;
+import org.apache.spark.streaming.scheduler.StreamingListenerOutputOperationStarted;
+import org.apache.spark.streaming.scheduler.StreamingListenerReceiverError;
+import org.apache.spark.streaming.scheduler.StreamingListenerReceiverStarted;
+import org.apache.spark.streaming.scheduler.StreamingListenerReceiverStopped;
 
 import com.harman.dbinsertion.InsertIntoMongoDB;
 import com.harman.dbinsertion.InsertionIntoMariaDB;
@@ -27,6 +36,7 @@ public class SparkClient implements DBkeys {
 				.set("spark.executor.memory", "1g").set("spark.cores.max", "5");
 		System.out.println("1");
 		JavaStreamingContext ssc = new JavaStreamingContext(sparkConf, new Duration(3000));
+
 		/*
 		 * ssc.addStreamingListener(new StreamingListener() {
 		 * 
@@ -121,7 +131,7 @@ public class SparkClient implements DBkeys {
 			}
 		});
 		ssc.start();
-		ssc.awaitTermination();
+		ssc.awaitTerminationOrTimeout(Long.MAX_VALUE);
 	}
 
 }
