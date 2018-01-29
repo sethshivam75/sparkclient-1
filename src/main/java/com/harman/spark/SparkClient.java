@@ -23,7 +23,8 @@ public class SparkClient implements DBkeys {
 	@SuppressWarnings("resource")
 	public static void main(String[] args) {
 		System.out.println("52.165.145.168");
-		SparkConf sparkConf = new SparkConf().setMaster("spark://10.0.0.5:7077").setAppName("SmartAudioAnalytics");
+		SparkConf sparkConf = new SparkConf().setMaster("spark://10.0.0.5:7077").setAppName("SmartAudioAnalytics")
+				.set("spark.executor.memory", "1g").set("spark.cores.max", "5");
 		System.out.println("1");
 		JavaStreamingContext ssc = new JavaStreamingContext(sparkConf, new Duration(3000));
 		/*
@@ -82,12 +83,13 @@ public class SparkClient implements DBkeys {
 		UnionStream.foreachRDD(new VoidFunction<JavaRDD<String>>() {
 
 			private static final long serialVersionUID = 1L;
-			int total=0;
+			int total = 0;
+
 			@Override
 			public void call(JavaRDD<String> rdd) throws Exception {
-					
+
 				long count = rdd.count();
-				total+=count;
+				total += count;
 				System.out.println(total);
 				rdd.foreach(new VoidFunction<String>() {
 
