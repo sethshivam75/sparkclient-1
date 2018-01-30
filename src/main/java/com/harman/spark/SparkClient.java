@@ -34,14 +34,14 @@ public class SparkClient implements DBkeys {
 		UnionStream.foreachRDD(new VoidFunction<JavaRDD<String>>() {
 
 			private static final long serialVersionUID = 1L;
-			int total = 0;
+			//int total = 0;
 
 			@Override
 			public void call(JavaRDD<String> rdd) throws Exception {
 
-				long count = rdd.count();
-				total += count;
-				System.out.println(total);
+//				long count = rdd.count();
+//				total += count;
+//				System.out.println(total);
 				rdd.foreach(new VoidFunction<String>() {
 
 					private static final long serialVersionUID = 1L;
