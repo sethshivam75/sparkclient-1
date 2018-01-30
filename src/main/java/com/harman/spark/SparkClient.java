@@ -26,22 +26,24 @@ public class SparkClient implements DBkeys {
 		JavaStreamingContext ssc = new JavaStreamingContext(sparkConf, new Duration(3000));
 
 		JavaDStream<String> JsonReq1 = ssc.socketTextStream("52.165.145.168", 9997, StorageLevels.MEMORY_AND_DISK_SER);
-		JavaDStream<String> JsonReq2 = ssc.socketTextStream("52.165.145.168", 9997, StorageLevels.MEMORY_AND_DISK_SER);
-		ArrayList<JavaDStream<String>> streamList = new ArrayList<JavaDStream<String>>();
-		streamList.add(JsonReq1);
-		JavaDStream<String> UnionStream = ssc.union(JsonReq2, streamList);
+		// JavaDStream<String> JsonReq2 = ssc.socketTextStream("52.165.145.168",
+		// 9997, StorageLevels.MEMORY_AND_DISK_SER);
+		// ArrayList<JavaDStream<String>> streamList = new
+		// ArrayList<JavaDStream<String>>();
+		// streamList.add(JsonReq1);
+		// JavaDStream<String> UnionStream = ssc.union(JsonReq2, streamList);
 
-		UnionStream.foreachRDD(new VoidFunction<JavaRDD<String>>() {
+		JsonReq1.foreachRDD(new VoidFunction<JavaRDD<String>>() {
 
 			private static final long serialVersionUID = 1L;
-			//int total = 0;
+			// int total = 0;
 
 			@Override
 			public void call(JavaRDD<String> rdd) throws Exception {
 
-//				long count = rdd.count();
-//				total += count;
-//				System.out.println(total);
+				// long count = rdd.count();
+				// total += count;
+				// System.out.println(total);
 				rdd.foreach(new VoidFunction<String>() {
 
 					private static final long serialVersionUID = 1L;
