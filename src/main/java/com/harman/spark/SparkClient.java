@@ -10,21 +10,18 @@ import org.apache.spark.streaming.Duration;
 import org.apache.spark.streaming.api.java.JavaDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
 
-import com.harman.dbinsertion.InsertIntoMongoDB;
-import com.harman.dbinsertion.InsertionIntoMariaDB;
 import com.harman.models.DBkeys;
 
 public class SparkClient implements DBkeys {
 
 	final static int emailAlertCounter = 4;
-	@SuppressWarnings("unused")
-	private JavaStreamingContext ssc = null;
 
 	@SuppressWarnings("resource")
 	public static void main(String[] args) {
 		System.out.println("52.165.145.168");
 		SparkConf sparkConf = new SparkConf().setMaster("spark://10.0.0.5:7077").setAppName("SmartAudioAnalytics")
-				.set("spark.executor.memory", "1g").set("spark.cores.max", "5");
+				.set("spark.executor.memory", "1g").set("spark.cores.max", "5").set("spark.driver.cores", "2")
+				.set("spark.driver.memory", "2g");
 		System.out.println("1");
 		JavaStreamingContext ssc = new JavaStreamingContext(sparkConf, new Duration(3000));
 
@@ -51,23 +48,26 @@ public class SparkClient implements DBkeys {
 
 					@Override
 					public void call(String s) throws Exception {
+						System.out.println("Test");
 						System.out.println(s);
-						InsertIntoMongoDB insertMongo = InsertIntoMongoDB.getInstance();
-						insertMongo.openConnection();
-						insertMongo.updateCounter();
-						insertMongo.inserSingleRecordMongoDB(s);
-
-						InsertionIntoMariaDB insertMaria = InsertionIntoMariaDB.getInstance();
-						insertMaria.insertIntoMariaDB(s);
-
-						if (insertMongo.getCounter() >= count) {
-							if (insertMaria.getFeatureCounter() > emailAlertCounter) {
-								// send email
-								SparkTriggerThread.SendEmail("CriticalTemperatureShutDown",
-										insertMaria.getFeatureCounter());
-							}
-							insertMaria.resetFeatureCounter();
-						}
+						/*
+						 * InsertIntoMongoDB insertMongo =
+						 * InsertIntoMongoDB.getInstance();
+						 * insertMongo.openConnection();
+						 * insertMongo.updateCounter();
+						 * insertMongo.inserSingleRecordMongoDB(s);
+						 * 
+						 * InsertionIntoMariaDB insertMaria =
+						 * InsertionIntoMariaDB.getInstance();
+						 * insertMaria.insertIntoMariaDB(s);
+						 * 
+						 * if (insertMongo.getCounter() >= count) { if
+						 * (insertMaria.getFeatureCounter() > emailAlertCounter)
+						 * { // send email SparkTriggerThread.SendEmail(
+						 * "CriticalTemperatureShutDown",
+						 * insertMaria.getFeatureCounter()); }
+						 * insertMaria.resetFeatureCounter(); }
+						 */
 
 					}
 
