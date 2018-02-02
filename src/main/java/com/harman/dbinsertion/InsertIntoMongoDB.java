@@ -34,24 +34,25 @@ public class InsertIntoMongoDB {
 	 * Connection opens once only, and kept open till the Sparkclient runs
 	 */
 	public void openConnection() {
-		if (mongoClient == null)
-			mongoClient = new MongoClient("localhost", 27017);
+		if (mongoClient == null){
+			mongoClient = new MongoClient("10.0.0.4", 27017);
+		}
 	}
 
 	public void inserSingleRecordMongoDB(String json) {
 		try {
-			System.out.println(json);
+			System.out.println("*************Inserting into mongo");
 			Document document = Document.parse(json.toString());
 			MongoDatabase database = mongoClient.getDatabase("DEVICE_INFO_STORE");
 			MongoCollection<Document> table = database.getCollection("SmartAudioAnalytics");
 			table.insertOne(document);
 		} catch (Exception e) {
 			e.printStackTrace();
+			System.out.println("Mongo : "+e.getMessage());
 		}
 	}
 
 	public void inserIntoMongoDB(Vector<String> json) {
-		System.out.println(json);
 		List<Document> list = new ArrayList<>();
 		for (String temp : json) {
 			Document document = Document.parse(temp.toString());

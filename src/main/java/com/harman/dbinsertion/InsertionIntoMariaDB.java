@@ -29,6 +29,7 @@ public class InsertionIntoMariaDB implements DBkeys {
 	private int featureCounter = 0;
 
 	public String insertIntoMariaDB(String record) {
+		System.out.println("****************************** Inserting to mariaDB");
 		ErrorType errorType = ErrorType.NO_ERROR;
 		JSONObject response = new JSONObject();
 		try {
@@ -40,7 +41,7 @@ public class InsertionIntoMariaDB implements DBkeys {
 			try {
 				deviceModel = harmanParser.getParseHarmanDevice(jsonObject.getJSONObject(harmanDevice));
 				errorType = mariaModel.insertDeviceModel(deviceModel, connection);
-				System.out.println(errorType.name());
+				//System.out.println(errorType.name());
 			} catch (JSONException e) {
 				errorType = ErrorType.INVALID_JSON;
 			}
@@ -52,7 +53,7 @@ public class InsertionIntoMariaDB implements DBkeys {
 				
 				updateFeatureCounter(deviceAnalyticsModel.getmDeviceAnaModelList().get(CriticalTemperatureShutDown));
 				
-				System.out.println(errorType.name());
+				//System.out.println(errorType.name());
 			} catch (JSONException e) {
 				errorType = ErrorType.INVALID_JSON;
 			}
@@ -61,7 +62,7 @@ public class InsertionIntoMariaDB implements DBkeys {
 				AppAnalyticsModel appAnalyticsModel = harmanParser
 						.getParseAppAnalyticsModel(jsonObject.getJSONObject(AppAnalytics), deviceModel.getMacAddress());
 				errorType = mariaModel.insertAppAnalytics(appAnalyticsModel, connection);
-				System.out.println(errorType.name());
+				//System.out.println(errorType.name());
 			} catch (JSONException e) {
 				errorType = ErrorType.INVALID_JSON;
 			}
